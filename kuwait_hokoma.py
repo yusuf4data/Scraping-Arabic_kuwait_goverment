@@ -23,6 +23,23 @@ class KuwaitHokomaSpider(scrapy.Spider):
         for row in all_rows:
             th_name=row.xpath('td[1]/a/text()').extract_first()
             th_name = arabic_format_sentence(th_name)
+            title_txt = []
+            title_date = []
+            titles = row.xpath('td[2]//tr')
+            for tr in titles:
+                try:
+                    position = tr.xpath(
+                        "./td/p[@class='postarabic']/text()").extract_first().strip()
+                    the_date = tr.xpath("./td/p[@class='post_change_info']/text()").extract_first().strip()
+                    position = arabic_format_sentence(position)
+                    title_txt.append(position)
+
+                    if the_date:
+                        the_date = arabic_format_sentence(the_date)
+                        title_date.append(the_date)
+                except:
+                    pass
+
             shakh_or_wazeer_montakhab = row.xpath('td[3]/text()').extract_first().strip()
             shakh_or_wazeer_montakhab = arabic_format_sentence(shakh_or_wazeer_montakhab)
             fara_al_alhakima = row.xpath('td[4]/text()').extract_first()
@@ -34,13 +51,15 @@ class KuwaitHokomaSpider(scrapy.Spider):
             al_taiar_alsiasy = row.xpath('td[7]/text()').extract_first()
             al_taiar_alsiasy = arabic_format_sentence(al_taiar_alsiasy)
             yield {
-                'الاسم':th_name[::-1],
-                'شيخ او وزير منتخب':shakh_or_wazeer_montakhab[::-1],
-                'فرع العائلة':fara_al_alhakima[::-1],
+                'name':th_name[::-1],
+                'title_position': title_txt,
+                'title_date': title_date,
+                'shakh or wazer':shakh_or_wazeer_montakhab[::-1],
+                'family':fara_al_alhakima[::-1],
                 'al_taefa':al_taefa[::-1],
                 'al_kabila':al_kabila[::-1],
                 'al_taiar_alsiasy':al_taiar_alsiasy[::-1]
-            }
+                    }
 
 
 def arabic_format_sentence(sentence):
